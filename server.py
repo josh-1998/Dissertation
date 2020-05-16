@@ -25,9 +25,9 @@ def mod_draw(agent):
 points = PointsElement()
 
 model_params = {
-    "height": UserSettableParameter("slider", "Height", 50, 10, 50, 5),
-    "width": UserSettableParameter("slider", "Width", 50, 10, 50, 5),
-    "density": UserSettableParameter("slider", "Agent Density", 0.1, 0.1, 1.0, 0.1),
+    "height": 50,
+    "width": 50,
+    "density": UserSettableParameter("slider", "Agent Density", 0.05, 0.05, 0.5, 0.05),
 }
 
 

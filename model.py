@@ -33,7 +33,7 @@ class SchellingAgent(Agent):
                 if oxy_level <5:
                     self.model.grid.move_agent(self,(self.pos[0]+a,self.pos[1]+b))
             if not self.model.grid.out_of_bounds((self.pos[0]-a,self.pos[1]-b)):
-                if oxy_level >12:
+                if oxy_level >12 or round(oxy_level) == 0:
                     self.model.grid.move_agent(self,(self.pos[0]-a,self.pos[1]-b))
         except:
             try:
@@ -41,7 +41,8 @@ class SchellingAgent(Agent):
                 if oxy_level <5:
                     while(1):
                         if self.model.grid.is_cell_empty((self.pos[0]+(a*n),self.pos[1]+(b*n))):
-                            self.model.grid.move_agent(self.model.grid[self.pos[0]+(n-1)][self.pos[1]+(n-1)],(self.pos[0]+n,self.pos[1]+n))
+                            for m in range(n):
+                                self.model.grid.move_agent(self.model.grid[self.pos[0]+(a*(n-1-m))][self.pos[1]+(a*(n-1-m))],(self.pos[0]+(a*(n-m)),self.pos[1]+(a*(n-m))))
                             break
                         else:
                             n+=1
@@ -49,8 +50,8 @@ class SchellingAgent(Agent):
                 if oxy_level >12:
                     while(1):
                         if self.model.grid.is_cell_empty((self.pos[0]-(a*n),self.pos[1]-(b*n))):
-                            for m in range(n):            
-                                self.model.grid.move_agent(self.model.grid[self.pos[0]-(n-m-1)][self.pos[1]-(n-m-1)],(self.pos[0]-n-m,self.pos[1]-n-m))
+                            for m in range(n):
+                                self.model.grid.move_agent(self.model.grid[self.pos[0]-(a*(n-m-1))][self.pos[1]-(a*(n-m-1))],(self.pos[0]-(a*(n-m)),self.pos[1]-a*(n-m)))
                             break
                         else:
                             n+=1
@@ -70,7 +71,7 @@ class Model(Model):
     Model class for the Schelling segregation model.
     """
 
-    def __init__(self, height=30, width=30, density=0.1, oxy_den_count = 1):
+    def __init__(self, height=50, width=50, density=0.1, oxy_den_count = 1):
         """
         """
 
@@ -79,7 +80,7 @@ class Model(Model):
         self.density = density
 
         self.schedule = RandomActivation(self)
-        self.grid = SingleGrid(width, height, torus=True)
+        self.grid = SingleGrid(width, height, torus=False)
         self.datacollector = DataCollector(
             {"happy": "happy"},  # Model-level count of happy agents
             # For testing purposes, agent's individual x and y
@@ -101,16 +102,14 @@ class Model(Model):
         self.running = True
         self.datacollector.collect(self)
 
-    def get_height():
-        return self.height
-    def get_width():
-        return self.width
 
     def get_oxygen(self,x,y):
-        return -1*pow((x/5)-5,2) -pow((y/5)-5,2) +25
+        x1 = self.width
+        y1 = self.height
+        return -1*pow((x/(x1/10))-(x1/10),2) -pow((y/(y1/10))-(y1/10),2) +(x1+y1)/2
     def get_oxy_grad(self, x, y):
-        a = -(((2*x)/25) -2)
-        b = -(((2*y)/25) -2)
+        a = -(((2*x)/(pow(self.width,2)/100)) -2)
+        b = -(((2*y)/(pow(self.height,2)/100)) -2)
         if  abs(b) != 0:
             b = b / abs(b)
         if abs(a) != 0:
