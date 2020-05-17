@@ -33,8 +33,10 @@ class SchellingAgent(Agent):
                 if oxy_level <5:
                     self.model.grid.move_agent(self,(self.pos[0]+a,self.pos[1]+b))
             if not self.model.grid.out_of_bounds((self.pos[0]-a,self.pos[1]-b)):
-                if oxy_level >12 or round(oxy_level) == 0:
+                if oxy_level >12:
                     self.model.grid.move_agent(self,(self.pos[0]-a,self.pos[1]-b))
+            if self.pos == (self.model.width/2,self.model.height/2):
+                self.model.grid.move_agent(self,(self.pos[0]-1,self.pos[1]-1))
         except:
             try:
                 n=1
@@ -106,7 +108,7 @@ class Model(Model):
     def get_oxygen(self,x,y):
         x1 = self.width
         y1 = self.height
-        return -1*pow((x/(x1/10))-(x1/10),2) -pow((y/(y1/10))-(y1/10),2) +(x1+y1)/2
+        return -1*pow((x/(x1/10))-(x1/10),2) -pow((y/(y1/10))-(y1/10),2) +(x1+y1)/4
     def get_oxy_grad(self, x, y):
         a = -(((2*x)/(pow(self.width,2)/100)) -2)
         b = -(((2*y)/(pow(self.height,2)/100)) -2)
