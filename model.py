@@ -11,7 +11,11 @@ class Agent(Agent):
     def __init__(self, pos, model):
         super().__init__(pos, model)
         self.pos = pos
+        self.x = pos[0]
+        self.y = pos[1]
         self.speed = 1
+        self.direction = 1
+
 
     #compute the local density for k-nearest neighbours
     def k_local_density(self, k):
@@ -25,60 +29,63 @@ class Agent(Agent):
         density = k/(math.pi * pow(r,2))
         return density
 
+    def kslow(self,kso,ks,density):
+        return kso + ks * Density
+
+    def r_rev(self,r_,density):
+        r_rev = r_*density
+        return r_rev
+
+
+    def m_vector(self):
+        v = [0,0]
+        u = 0
+        r=1
+        while(1):
+            neighbors = self.model.grid.get_neighbors(self.pos,True,False,r)
+            if len(neighbors) < 5:
+                r+=1
+            else:
+                break
+        for neighbour in self.model.grid.iter_neighbors(self.pos,True,False,r):
+            v[0] = v[0] + (neighbour.pos[0] - self.pos[0])
+            v[1] = v[1] + (neighbour.pos[1] - self.pos[1])
+        try:
+            u = math.sqrt(pow(v[0],2) + pow(v[1],2))
+            v[0] = v[0]/u
+            v[1] = v[1]/u
+            return v
+        except:
+            return [0,0]
+
 
 
     def step(self):
-
-        oxy_level = self.model.get_oxygen(self.pos[0],self.pos[1])
-        c,d,oxy_grad = self.model.get_oxy_grad(self.pos[0],self.pos[1])
-        a=int(c)
-        b=int(d)
+        self.direction = 1
+        p = self.k_local_density(6)
+        r_r = self.r_rev(self.model.r_,p)
+        print(r_r)
+        if r_r > 0.1:
+            self.direction = self.direction * -1
+        m = self.m_vector()
+        self.x = self.x + (self.direction * self.speed * m[0])
+        self.y = self.y + (self.direction * self.speed * m[1])
         try:
-            if not self.model.grid.out_of_bounds((self.pos[0]+a,self.pos[1]+b)):
-                if oxy_level <5:
-                    self.model.grid.move_agent(self,(self.pos[0]+a,self.pos[1]+b))
-            if not self.model.grid.out_of_bounds((self.pos[0]-a,self.pos[1]-b)):
-                if oxy_level >12:
-                    self.model.grid.move_agent(self,(self.pos[0]-a,self.pos[1]-b))
-            if self.pos == (self.model.width/2,self.model.height/2):
-                self.model.grid.move_agent(self,(self.pos[0]-1,self.pos[1]-1))
+            self.model.grid.move_agent(self,(round(self.x),round(self.y)))
         except:
-            try:
-                n=1
-                if oxy_level <5:
-                    while(1):
-                        if self.model.grid.is_cell_empty((self.pos[0]+(a*n),self.pos[1]+(b*n))):
-                            for m in range(n):
-                                self.model.grid.move_agent(self.model.grid[self.pos[0]+(a*(n-1-m))][self.pos[1]+(a*(n-1-m))],(self.pos[0]+(a*(n-m)),self.pos[1]+(a*(n-m))))
-                            break
-                        else:
-                            n+=1
-                n=1
-                if oxy_level >12:
-                    while(1):
-                        if self.model.grid.is_cell_empty((self.pos[0]-(a*n),self.pos[1]-(b*n))):
-                            for m in range(n):
-                                self.model.grid.move_agent(self.model.grid[self.pos[0]-(a*(n-m-1))][self.pos[1]-(a*(n-m-1))],(self.pos[0]-(a*(n-m)),self.pos[1]-a*(n-m)))
-                            break
-                        else:
-                            n+=1
-            except:
-                self.model.grid.move_agent(self,self.pos)
+            self.model.grid.move_agent(self,(self.pos[0],self.pos[1]))
+
 
 
 class Model(Model):
-    """
-    Model class for the Schelling segregation model.
-    """
 
-    def __init__(self, height, width, a_density=0.1, f_density = 0.1):
-        """
-        """
+    def __init__(self, height, width, a_density=0.1, r_=0.1, k_=0.1):
 
         self.height = height
         self.width = width
         self.a_density = a_density
-        self.f_density = f_density
+        self.r_ = r_
+        self.k_ = k_
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=False)
@@ -96,6 +103,7 @@ class Model(Model):
         for cell in self.grid.coord_iter():
             x = cell[1]
             y = cell[2]
+            
             if self.random.random() < self.a_density:
                 agent = Agent((x, y), self)
                 self.grid.position_agent(agent, (x, y))
@@ -104,21 +112,6 @@ class Model(Model):
         self.running = True
         self.datacollector.collect(self)
 
-
-    def get_oxygen(self,x,y):
-        x1 = self.width
-        y1 = self.height
-        return -1*pow((x/(x1/10))-(x1/10),2) -pow((y/(y1/10))-(y1/10),2) +(x1+y1)/4
-    def get_oxy_grad(self, x, y):
-        a = -(((2*x)/(pow(self.width,2)/100)) -2)
-        b = -(((2*y)/(pow(self.height,2)/100)) -2)
-        if  abs(b) != 0:
-            b = b / abs(b)
-        if abs(a) != 0:
-            a = a / abs(a)
-
-        total = -1*a - b
-        return a,b,total
 
     def step(self):
         """
