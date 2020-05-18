@@ -50,13 +50,6 @@ class Agent(Agent):
             except:
                 self.model.grid.move_agent(self,self.pos)
 
-            #if not self.model.grid.out_of_bounds((self.pos[0]+a,self.pos[1]+b)):
-            #    m = self.model.grid[self.pos[0]+a][self.pos[1]+b]
-            #    self.model.grid.remove_agent(self.model.grid[self.pos[0]+a][self.pos[1]+b])
-            #    self.model.grid.move_agent(self,(self.pos[0]+a,self.pos[1]+b))
-            #    self.model.grid.place_agent(m,(self.pos[0]-a,self.pos[1]-b))
-            #    #self.model.grid.place_agent(m,(m.pos[0],m.pos[1]))
-            #    #self.model.grid.move_agent(self.model.grid[w2][w1],(self.pos[0]-a,self.pos[1]-b))
 
 class Model(Model):
     """
