@@ -11,6 +11,21 @@ class Agent(Agent):
     def __init__(self, pos, model):
         super().__init__(pos, model)
         self.pos = pos
+        self.speed = 1
+
+    #compute the local density for k-nearest neighbours
+    def k_local_density(self, k):
+        r=1
+        while(1):
+            neighbours = self.model.grid.get_neighbors(self.pos,True,False,r)
+            if len(neighbours) < k:
+                r+=1
+            else:
+                break
+        density = k/(math.pi * pow(r,2))
+        return density
+
+
 
     def step(self):
 
