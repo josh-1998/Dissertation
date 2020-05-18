@@ -6,19 +6,9 @@ from random import randrange
 import math
 
 
-class SchellingAgent(Agent):
-    """
-    Schelling segregation agent
-    """
+class Agent(Agent):
 
     def __init__(self, pos, model):
-        """
-         Create a new Schelling agent.
-         Args:
-            unique_id: Unique identifier for the agent.
-            x, y: Agent initial location.
-            agent_type: Indicator for the agent's type (minority=1, majority=0)
-        """
         super().__init__(pos, model)
         self.pos = pos
 
@@ -73,13 +63,14 @@ class Model(Model):
     Model class for the Schelling segregation model.
     """
 
-    def __init__(self, height=50, width=50, density=0.1, oxy_den_count = 1):
+    def __init__(self, height, width, a_density=0.1, f_density = 0.1):
         """
         """
 
         self.height = height
         self.width = width
-        self.density = density
+        self.a_density = a_density
+        self.f_density = f_density
 
         self.schedule = RandomActivation(self)
         self.grid = SingleGrid(width, height, torus=False)
@@ -93,11 +84,12 @@ class Model(Model):
         # We use a grid iterator that returns
         # the coordinates of a cell as well as
         # its contents. (coord_iter)
+
         for cell in self.grid.coord_iter():
             x = cell[1]
             y = cell[2]
-            if self.random.random() < self.density:
-                agent = SchellingAgent((x, y), self)
+            if self.random.random() < self.a_density:
+                agent = Agent((x, y), self)
                 self.grid.position_agent(agent, (x, y))
                 self.schedule.add(agent)
 
