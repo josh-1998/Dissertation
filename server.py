@@ -14,9 +14,6 @@ class PointsElement(TextElement):
         return None#"Points of Optimum Oxygen Density: " + str(plist)
 
 def mod_draw(agent):
-    """
-    Portrayal Method for canvas
-    """
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
     portrayal["Color"] = ["#FF0000", "#FF9999"]
     portrayal["stroke_color"] = "#00FF00"
