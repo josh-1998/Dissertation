@@ -27,7 +27,7 @@ class Agent(Agent):
                 r+=1
             else:
                 break
-        if len(neighbours) == 0:
+        if len(neighbours) == 0 or self.model.food_matrix[self.pos[0]][self.pos[1]] == 0:
             self.roaming = 1
         else:
             self.roaming = 0
@@ -79,38 +79,25 @@ class Agent(Agent):
         if self.model.food_matrix[self.pos[0]][self.pos[1]] <= 0:
             self.speed = 2
         else:
+            if r_r > 0.1:
+                self.direction = self.direction * -1
+            if kslow > 0.1 and self.speed == 2:
+                self.speed = 0.5
+            if kfast > 1.63 and self.speed ==0.5:
+                self.speed = 2
+        try:
             if self.roaming == 1:
-                a = round(randrange(2)-1)
-                b = round(randrange(2)-1)
-
-                if not self.model.grid.out_of_bounds((round(self.x+a),round(self.y+b))):
-                    self.model.grid.move_agent(self,(round(self.x+a),round(self.y+b)))
+                a = round(randrange(3)-1)
+                b = round(randrange(3)-1)
+                if not self.model.grid.out_of_bounds((self.pos[0]+a,self.pos[1]+b)):
+                    self.model.grid.move_agent(self,(self.pos[0]+a,self.pos[1]+b))
             else:
-                if r_r > 0.1:
-                    self.direction = self.direction * -1
-                if kslow > 0.1 and self.speed == 2:
-                    self.speed = 0.5
-                if kfast > 1.63 and self.speed ==0.5:
-                    self.speed = 2
                 self.x = self.x + (self.direction * self.speed * m[0])
                 self.y = self.y + (self.direction * self.speed * m[1])
-                try:
-                    self.model.grid.move_agent(self,(round(self.x),round(self.y)))
-                except:
-        #            try:
-        #                n=0
-        #                while(1):
-        #                    if self.model.grid.is_cell_empty((round(self.x)+(n*m[0]),round(self.y)+(n*m[0]))):
-        #                        for m in range(n):
-        #                            self.model.grid.move_agent(self.model.grid[self.pos[0]+(a*(n-1-m))][self.pos[1]+(a*(n-1-m))],(self.pos[0]+(a*(n-m)),self.pos[1]+(a*(n-m))))
-        #                        break
-        #                    else:
-        #                        n+=1
-        #            except:
-                    self.model.grid.move_agent(self,(self.pos[0],self.pos[1]))
-            if self.model.food_matrix[self.pos[0]][self.pos[1]]<0:
-                roaming = 0
-                self.model.food_matrix[self.pos[0]][self.pos[1]]=0
+
+                self.model.grid.move_agent(self,(round(self.x),round(self.y)))
+        except:
+            self.model.grid.move_agent(self,(self.pos[0],self.pos[1]))
 
 
 class Model(Model):
