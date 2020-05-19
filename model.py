@@ -13,14 +13,14 @@ class Agent(Agent):
         self.pos = pos
         self.x = pos[0]
         self.y = pos[1]
-        self.speed = 1
+        self.speed = 2
         self.direction = 1
 
 
     #compute the local density for k-nearest neighbours
     def k_local_density(self, k):
         r=1
-        while(1):
+        while(r<7):
             neighbours = self.model.grid.get_neighbors(self.pos,True,False,r)
             if len(neighbours) < k:
                 r+=1
@@ -29,8 +29,11 @@ class Agent(Agent):
         density = k/(math.pi * pow(r,2))
         return density
 
-    def kslow(self,kso,ks,density):
-        return kso + ks * Density
+    def kslow(self,kso,k,density):
+        return kso + (k * density)
+
+    def kfast(self,kfo,k,density):
+        return kfo * math.exp(-k * density)
 
     def r_rev(self,r_,density):
         r_rev = r_*density
@@ -61,20 +64,41 @@ class Agent(Agent):
 
 
     def step(self):
+        self.model.food_matrix[self.pos[0]][self.pos[1]] = self.model.food_matrix[self.pos[0]][self.pos[1]] - 5
         self.direction = 1
         p = self.k_local_density(6)
         r_r = self.r_rev(self.model.r_,p)
-        print(r_r)
-        if r_r > 0.1:
-            self.direction = self.direction * -1
+        kslow = self.kslow(0.01,self.model.k_,p)
+        kfast = self.kfast(1.8,self.model.k_,p)
         m = self.m_vector()
-        self.x = self.x + (self.direction * self.speed * m[0])
-        self.y = self.y + (self.direction * self.speed * m[1])
-        try:
-            self.model.grid.move_agent(self,(round(self.x),round(self.y)))
-        except:
-            self.model.grid.move_agent(self,(self.pos[0],self.pos[1]))
-
+        if self.model.food_matrix[self.pos[0]][self.pos[1]] <= 0:
+            self.speed = 2
+        else:
+            if r_r > 0.1:
+                self.direction = self.direction * -1
+            if kslow > 0.1 and self.speed == 2:
+                self.speed = 0.5
+            if kfast > 1.63 and self.speed ==0.5:
+                self.speed = 2
+            self.x = self.x + (self.direction * self.speed * m[0])
+            self.y = self.y + (self.direction * self.speed * m[1])
+            try:
+                self.model.grid.move_agent(self,(round(self.x),round(self.y)))
+            except:
+    #            try:
+    #                n=0
+    #                while(1):
+    #                    if self.model.grid.is_cell_empty((round(self.x)+(n*m[0]),round(self.y)+(n*m[0]))):
+    #                        for m in range(n):
+    #                            self.model.grid.move_agent(self.model.grid[self.pos[0]+(a*(n-1-m))][self.pos[1]+(a*(n-1-m))],(self.pos[0]+(a*(n-m)),self.pos[1]+(a*(n-m))))
+    #                        break
+    #                    else:
+    #                        n+=1
+    #            except:
+                self.model.grid.move_agent(self,(self.pos[0],self.pos[1]))
+            if self.model.food_matrix[self.pos[0]][self.pos[1]]<0:
+                self.model.food_matrix[self.pos[0]][self.pos[1]]
+            print(self.speed)
 
 
 class Model(Model):
@@ -103,7 +127,9 @@ class Model(Model):
         for cell in self.grid.coord_iter():
             x = cell[1]
             y = cell[2]
-            
+            n = self.height
+            m = self.width
+            self.food_matrix = [[100] * m for i in range(n)]
             if self.random.random() < self.a_density:
                 agent = Agent((x, y), self)
                 self.grid.position_agent(agent, (x, y))
