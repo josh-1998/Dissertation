@@ -25,8 +25,8 @@ model_params = {
     "height": UserSettableParameter("slider", "Height", 50, 10, 50, 10),
     "width": UserSettableParameter("slider", "Width", 50, 10, 50, 10),
     "a_density": UserSettableParameter("slider", "Agent Density", 0.05, 0.05, 0.5, 0.05),
-    "r_":UserSettableParameter("slider", "rate of reversals", 0.5, 0.1, 1, 0.1),
-    "k_":UserSettableParameter("slider", "rate of switch", 0.5, 0.1, 1, 0.1),
+    "r_":UserSettableParameter("slider", "rate of reversals", 0, 0, 1, 0.25),
+    "k_":UserSettableParameter("slider", "rate of switch", 0, 0, 1, 0.25),
 }
 
 

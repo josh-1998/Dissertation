@@ -2,6 +2,7 @@ from mesa import Model, Agent
 from mesa.time import RandomActivation
 from mesa.space import SingleGrid
 from mesa.datacollection import DataCollector
+import random
 from random import randrange
 import math
 
@@ -78,6 +79,7 @@ class Agent(Agent):
         m = self.m_vector()
         if self.model.food_matrix[self.pos[0]][self.pos[1]] <= 0:
             self.speed = 2
+            self.direction = -1
         else:
             if r_r > 0.1:
                 self.direction = self.direction * -1
@@ -123,13 +125,15 @@ class Model(Model):
         # the coordinates of a cell as well as
         # its contents. (coord_iter)
 
+        random.seed(9001)
+        n = self.height
+        m = self.width
+        self.food_matrix = [[100] * m for i in range(n)]
         for cell in self.grid.coord_iter():
             x = cell[1]
             y = cell[2]
-            n = self.height
-            m = self.width
-            self.food_matrix = [[100] * m for i in range(n)]
-            if self.random.random() < self.a_density:
+            a = random.random()
+            if a < self.a_density:
                 agent = Agent((x, y), self)
                 self.grid.position_agent(agent, (x, y))
                 self.schedule.add(agent)
