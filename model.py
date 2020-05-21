@@ -91,8 +91,8 @@ class Agent(Agent):
             if self.roaming == 1:
                 a = round(randrange(3)-1)
                 b = round(randrange(3)-1)
-                if not self.model.grid.out_of_bounds((self.pos[0]+a,self.pos[1]+b)):
-                    self.model.grid.move_agent(self,(self.pos[0]+a,self.pos[1]+b))
+                if not self.model.grid.out_of_bounds((self.pos[0]+(self.speed*a),self.pos[1]+s(elf.speed*b))):
+                    self.model.grid.move_agent(self,(self.pos[0]+(self.speed*a),self.pos[1]+(self.speed*b)))
             else:
                 self.x = self.x + (self.direction * self.speed * m[0])
                 self.y = self.y + (self.direction * self.speed * m[1])
@@ -125,6 +125,7 @@ class Model(Model):
         # the coordinates of a cell as well as
         # its contents. (coord_iter)
 
+        #seed to always start agents in the same place
         random.seed(9001)
         n = self.height
         m = self.width
@@ -135,7 +136,7 @@ class Model(Model):
             a = random.random()
             if a < self.a_density:
                 agent = Agent((x, y), self)
-                self.grid.position_agent(agent, (x, y))
+                self.grid.place_agent(agent, (x, y))
                 self.schedule.add(agent)
 
         self.running = True
