@@ -4,15 +4,7 @@ from mesa.visualization.UserParam import UserSettableParameter
 
 from model import Model
 
-class PointsElement(TextElement):
-    def __init__(self):
-        pass
-    def render(self,model):
-        plist =[]
-        str_build = ""
-
-        return None#"Points of Optimum Oxygen Density: " + str(plist)
-
+#function to define portrayal of filled cell
 def mod_draw(agent):
     portrayal = {"Shape": "circle", "r": 0.5, "Filled": "true", "Layer": 0}
     portrayal["Color"] = ["#FF0000", "#FF9999"]
@@ -21,6 +13,7 @@ def mod_draw(agent):
 
 points = PointsElement()
 
+#parameters of the arena and model
 model_params = {
     "height": UserSettableParameter("slider", "Height", 50, 10, 50, 10),
     "width": UserSettableParameter("slider", "Width", 50, 10, 50, 10),
